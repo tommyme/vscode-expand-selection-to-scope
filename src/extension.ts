@@ -3,15 +3,13 @@
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 // https://vittorioromeo.info | vittorio.romeo@outlook.com
 
-'use strict';
 import * as vscode from 'vscode';
 
 // Bracket tables
 const symbols_l = ['{', '[', '('];
 const symbols_r = ['}', ']', ')'];
-
 // Return the top of the stack
-const peek = (stack) => stack.slice(-1)[0];
+const peek = (stack: any[]) => stack.slice(-1)[0];
 
 // Show unbalanced brackets error
 const show_error_popup = () => vscode.window.showInformationMessage('Unbalanced brackets :(');
@@ -19,7 +17,7 @@ const show_error_popup = () => vscode.window.showInformationMessage('Unbalanced 
 // Behavior for `search_scope` towards left
 const left = 
 {
-    predicate: (i, _) => i >= 0,
+    predicate: (i: number, _: any) => i >= 0,
     step: -1,
     my_symbols: symbols_l,
     other_symbols: symbols_r
@@ -28,13 +26,13 @@ const left =
 // Behavior for `search_scope` towards right
 const right = 
 {
-    predicate: (i, text) => i < text.length,
+    predicate: (i: number, text: string | any[]) => i < text.length, // 可以继续往下走
     step: 1,
     my_symbols: symbols_r,
     other_symbols: symbols_l
 };
 
-function search_scope(text: string, offset: number, direction, then)
+function search_scope(text: string, offset: number, direction: any, then: any)
 {
     // Stack of other brackets
     let stack: number[] = [];
@@ -89,7 +87,7 @@ export function activate(context: vscode.ExtensionContext)
     let disposable = vscode.commands.registerTextEditorCommand(cmd_name, (editor) => 
     {
         let document = editor.document;
-        editor.selections = editor.selections.map((selection, selectionIdx) => 
+        editor.selections = editor.selections.map((selection: any, selectionIdx: any) => 
         {
             const text = document.getText();
 
@@ -116,9 +114,9 @@ export function activate(context: vscode.ExtensionContext)
             }
 
             // Search matching scopes, first to the left, then to the right
-            search_scope(text, offset_l - 1, left, (il, match_l) => 
+            search_scope(text, offset_l - 1, left, (il: number, match_l: any) => 
             {
-                search_scope(text, offset_r + 1, right, (ir, match_r) => 
+                search_scope(text, offset_r + 1, right, (ir: number, match_r: any) => 
                 {
                     if(match_l !== match_r)
                     {
